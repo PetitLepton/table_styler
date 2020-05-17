@@ -68,6 +68,7 @@ class TableStyler(Styler):
 
     @staticmethod
     def get_default_styles(background, foreground):
+        tabular_nums = {"props": [("font-variant-numeric", "tabular-nums")]}
         headings = {
             "props": [
                 ("text-transform", "uppercase"),
@@ -78,6 +79,7 @@ class TableStyler(Styler):
         }
         even_row_color = {"props": [("background", background)]}
         return [
+            {"selector": "table", **tabular_nums},
             {"selector": "th.col_heading", **merge_props(TEXT_ALIGN_LEFT, headings)},
             {"selector": "tr:nth-child(even)", **even_row_color},
         ]
