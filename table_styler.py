@@ -40,20 +40,31 @@ class TableStyler(Styler):
         
     foreground: str
         Color for the text of the headings
+
+    Methods
+    -------
+    embed_in_scrollable_div
+        Returns a HTML string with the table embed in a div with overflow: auto. This
+        allows for a scrollable table.
         
     Example
     -------
-    >>> TableStyler(
-            pandas.DataFrame(
-                data={
-                    "Text column": 3 * ["This is long enough"] + 3 * ["This is short"],
-                    "Number column": 6 * [1],
-                    "Date column quite long": pandas.date_range(
-                        start="1970-01-01", periods=6, freq="d"
-                    ),
-                }
-            )
-        ).hide_index()
+    >>> df = pandas.DataFrame(
+        data={
+            "Text column": 3 * ["This is long enough"] + 3 * ["This is short"],
+            "Number column": 3 * [91] + 3 * [12],
+            "Date column quite long": pandas.date_range(
+                start="1970-01-01", periods=6, freq="d"
+            ),
+        }
+    )
+
+    >>> TableStyler(df).hide_index()
+
+    # To make the table scrollable, embed it in a div environment
+    >>> s = "<div style='width: 100%; height: 100%; overflow: auto;'>{}</div>".format(
+        TableStyler(df).hide_index().render()
+    )
     
     """
 
@@ -68,7 +79,13 @@ class TableStyler(Styler):
 
     @staticmethod
     def get_default_styles(background, foreground):
-        tabular_nums = {"props": [("font-variant-numeric", "tabular-nums")]}
+        table = {
+            "props": [
+                ("font-variant-numeric", "tabular-nums"),
+                ("border-spacing", "0"),
+                ("line-height", "2"),
+            ]
+        }
         headings = {
             "props": [
                 ("text-transform", "uppercase"),
@@ -78,10 +95,14 @@ class TableStyler(Styler):
             ]
         }
         even_row_color = {"props": [("background", background)]}
+        cell_padding = {"props": [("padding", "0 1ch")]}
         return [
-            {"selector": "table", **tabular_nums},
+            # By passing an empty selector, the props are added at the ID level
+            # allowing to style the table itself
+            {"selector": "", **table},
             {"selector": "th.col_heading", **merge_props(TEXT_ALIGN_LEFT, headings)},
             {"selector": "tr:nth-child(even)", **even_row_color},
+            {"selector": "th, tr, td", **cell_padding},
         ]
 
     def __init__(self, data, background="#fff4f9", foreground="#b28d9f"):
