@@ -6,21 +6,23 @@ This is a simple custom styler for tables, inspired by [this Medium post](https:
 
 The following example
 ```python
-TableStyler(
-    pandas.DataFrame(
-        data={
-            "Text column": 3 * ["This is long enough"] + 3 * ["This is short"],
-            "Number column": 3 * [91] + 3 * [1243],
-            "Another Number column": 3 * [91] + 3 * [1243],
-            "Date column quite long": pandas.date_range(
-                start="1970-01-01", periods=6, freq="d"
-            ),
-        }
+(
+    TableStyler(
+        pandas.DataFrame(
+            data={
+                "Text column": 3 * ["This is long enough"] + 3 * ["This is short"],
+                "Number column": 3 * [91] + 3 * [1243],
+                "Another Number column": 3 * [91] + 3 * [1243],
+                "Date column quite long": pandas.date_range(
+                    start="1970-01-01", periods=6, freq="d"
+                ),
+            }
+        )
     )
+    .hide_index()
+    .format_columns(numerical_format="{:,}", date_format="{:%b %d, %Y}")
+    .render()
 )
-.hide_index()
-.format_columns(numerical_format="{:,}", date_format="{:%b %d, %Y}")
-.render()
 ```
 will render in a browser as
 
