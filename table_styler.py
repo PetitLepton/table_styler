@@ -41,6 +41,9 @@ class TableStyler(Styler):
     foreground: str
         Color for the text of the headings
 
+    even_row_background:
+        Color for the background of the even rows 
+
     Methods
     -------
     format_columns(numerical_format=None, date_format=None)
@@ -85,12 +88,12 @@ class TableStyler(Styler):
         return text_column_styles
 
     @staticmethod
-    def get_default_styles(background, foreground):
+    def get_default_styles(background, foreground, even_row_background=None):
         table = {
             "props": [
                 ("font-variant-numeric", "tabular-nums"),
                 ("border-spacing", "0"),
-                ("line-height", "2"),
+                ("line-height", "1.35"),
             ]
         }
         headings = {
@@ -99,10 +102,26 @@ class TableStyler(Styler):
                 ("color", foreground),
                 ("background", background),
                 ("border-collapse", ""),
+                ("padding", "0.5ex 1ch"),
             ]
         }
-        even_row_color = {"props": [("background", background)]}
-        cell_padding = {"props": [("padding", "0 1ch")]}
+        even_row_color = {
+            "props": [
+                (
+                    "background",
+                    even_row_background if even_row_background else background,
+                )
+            ]
+        }
+        cell_padding = {"props": [("padding", "0.25ex 1ch"), ("max-width", "60ch")]}
+        sticky = {
+            "props": [
+                ("position", "sticky"),
+                ("position", "-webkit-sticky"),
+                ("top", "0"),
+            ]
+        }
+
         return [
             # By passing an empty selector, the props are added at the ID level
             # allowing to style the table itself
@@ -110,14 +129,17 @@ class TableStyler(Styler):
             {"selector": "th.col_heading", **merge_props(TEXT_ALIGN_LEFT, headings)},
             {"selector": "tr:nth-child(even)", **even_row_color},
             {"selector": "th, tr, td", **cell_padding},
+            {"selector": "th", **sticky},
         ]
 
-    def __init__(self, data, background="#fff4f9", foreground="#b28d9f"):
+    def __init__(
+        self, data, background="#fff4f9", foreground="#b28d9f", even_row_background=None
+    ):
         super().__init__(data)
 
         # self.data is now defined
         styles = self.get_default_styles(
-            background, foreground
+            background, foreground, even_row_background
         ) + self.get_text_column_styles(
             self.columns, self.object_columns + self.date_columns
         )
