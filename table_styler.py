@@ -55,7 +55,11 @@ class TableStyler(Styler):
     -------
     >>> df = pandas.DataFrame(
             data={
-                "Text column": 3 * ["This is long enough"] + 3 * ["This is short"],
+                "Text column": 3
+                * [
+                    "This is not long enough, it needs to be really much longer to show a line break. This hopefully should do the trick as expected."
+                ]
+                + 3 * ["This is short"],
                 "Number column": 3 * [91] + 3 * [1243],
                 "Another Number column": 3 * [91] + 3 * [1243],
                 "Date column quite long": pandas.date_range(
@@ -65,7 +69,7 @@ class TableStyler(Styler):
         )
 
     >>> (
-            TableStyler(df)
+            TableStyler(df, even_row_background="#fff4f9",)
             .hide_index()
             .format_columns(numerical_format="{:,}", date_format="{:%b %d, %Y}")
             .render()
