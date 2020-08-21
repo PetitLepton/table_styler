@@ -36,13 +36,15 @@ class TableStyler(Styler):
     Attributes
     ----------
     background: str
-        Color for the background headings and even rows
-        
+        Color for the background headings and even rows    
     foreground: str
         Color for the text of the headings
+    even_row_background: str (default: background)
+        Color for the background of the even rows
+    odd_row_background: str (default: #ffffff)
+        Color for the background of the odd rows
+    
 
-    even_row_background:
-        Color for the background of the even rows 
 
     Methods
     -------
@@ -92,7 +94,9 @@ class TableStyler(Styler):
         return text_column_styles
 
     @staticmethod
-    def get_default_styles(background, foreground, even_row_background=None):
+    def get_default_styles(
+        background, foreground, even_row_background=None, odd_row_background=None
+    ):
         table = {
             "props": [
                 ("font-variant-numeric", "tabular-nums"),
@@ -106,7 +110,7 @@ class TableStyler(Styler):
                 ("color", foreground),
                 ("background", background),
                 ("border-collapse", ""),
-                ("padding", "0.5ex 1ch"),
+                ("padding", "0.75ex 1ch"),
             ]
         }
         even_row_color = {
@@ -117,7 +121,13 @@ class TableStyler(Styler):
                 )
             ]
         }
-        cell_padding = {"props": [("padding", "0.25ex 1ch"), ("max-width", "60ch")]}
+        odd_row_color = {
+            "props": [
+                ("background", odd_row_background if odd_row_background else "#ffffff",)
+            ]
+        }
+        hover = {"props": [("filter", "brightness(93%)")]}
+        cell_padding = {"props": [("padding", "0.5ex 1ch"), ("max-width", "60ch")]}
         sticky = {
             "props": [
                 ("position", "sticky"),
@@ -132,18 +142,25 @@ class TableStyler(Styler):
             {"selector": "", **table},
             {"selector": "th.col_heading", **merge_props(TEXT_ALIGN_LEFT, headings)},
             {"selector": "tr:nth-child(even)", **even_row_color},
+            {"selector": "tr:nth-child(odd)", **odd_row_color},
             {"selector": "th, tr, td", **cell_padding},
             {"selector": "th", **sticky},
+            {"selector": "tbody tr:hover", **hover},
         ]
 
     def __init__(
-        self, data, background="#fff4f9", foreground="#b28d9f", even_row_background=None
+        self,
+        data,
+        background="#fff4f9",
+        foreground="#b28d9f",
+        even_row_background=None,
+        odd_row_background=None,
     ):
         super().__init__(data)
 
         # self.data is now defined
         styles = self.get_default_styles(
-            background, foreground, even_row_background
+            background, foreground, even_row_background, odd_row_background
         ) + self.get_text_column_styles(
             self.columns, self.object_columns + self.date_columns
         )
